@@ -188,7 +188,10 @@ async function renderPoster(html) {
   });
   const data = await res.json();
   console.log("🖼️ hcti.io response:", JSON.stringify(data));
-  return data.url;
+  // Convert API URL to direct image URL by appending .jpg
+  const imageUrl = data.url + ".jpg";
+  console.log("Final image URL:", imageUrl);
+  return imageUrl;
 }
 
 // ============================================================
