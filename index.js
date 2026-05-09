@@ -134,6 +134,10 @@ async function generateAIQuote(theme = null) {
   });
 
   const data = await res.json();
+  console.log('🤖 Groq response status:', res.status, 'body:', JSON.stringify(data).substring(0, 300));
+  if (!data.choices || !data.choices[0]) {
+    throw new Error('Groq API failed: ' + JSON.stringify(data));
+  }
   const raw = data.choices[0].message.content.trim();
   const clean = raw.replace(/```json|```/g, '').trim();
   return JSON.parse(clean);
