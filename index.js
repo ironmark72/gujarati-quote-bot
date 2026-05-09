@@ -176,16 +176,18 @@ function buildPosterHTML(imageUrl, quote, name) {
 // ============================================================
 
 async function renderPoster(html) {
-  const credentials = Buffer.from(`${HCTI_USER_ID}:${HCTI_API_KEY}`).toString('base64');
-  const res = await fetch('https://hcti.io/v1/image', {
-    method: 'POST',
+  console.log("🖼️ Rendering poster via hcti.io, USER_ID:", HCTI_USER_ID ? "set" : "MISSING", "API_KEY:", HCTI_API_KEY ? "set" : "MISSING");
+  const credentials = Buffer.from(`${HCTI_USER_ID}:${HCTI_API_KEY}`).toString("base64");
+  const res = await fetch("https://hcti.io/v1/image", {
+    method: "POST",
     headers: {
-      'Authorization': `Basic ${credentials}`,
-      'Content-Type': 'application/json'
+      "Authorization": `Basic ${credentials}`,
+      "Content-Type": "application/json"
     },
     body: JSON.stringify({ html, viewport_width: 1080, viewport_height: 1920 })
   });
   const data = await res.json();
+  console.log("🖼️ hcti.io response:", JSON.stringify(data));
   return data.url;
 }
 
@@ -360,12 +362,15 @@ app.post('/webhook', async (req, res) => {
 
   try {
     const body = req.body;
+    console.log('📩 Incoming update:', JSON.stringify(body).substring(0, 200));
+
     const message = body.message;
     const callbackQuery = body.callback_query;
 
     // Handle callback queries (theme button taps)
     if (callbackQuery) {
       const chatId = callbackQuery.message.chat.id;
+      console.log(`🎨 Callback: ${callbackQuery.data} from ${chatId}`);
       await handleThemeCallback(chatId, callbackQuery.id, callbackQuery.data);
       return;
     }
@@ -374,6 +379,7 @@ app.post('/webhook', async (req, res) => {
 
     const chatId = message.chat.id;
     const text = message.text.trim();
+    console.log(`💬 Command: "${text}" from ${chatId}`);
 
     if (text === '/start') return handleStart(chatId);
     if (text === '/daily') return handleDaily(chatId);
@@ -383,7 +389,7 @@ app.post('/webhook', async (req, res) => {
     return handleFallback(chatId, text);
 
   } catch (err) {
-    console.error('Webhook error:', err);
+    console.error('❌ Webhook error:', err);
   }
 });
 
